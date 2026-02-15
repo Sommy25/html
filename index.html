@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Goal Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .unit-toggle {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            background: #f7f7f7;
+            padding: 6px;
+            border-radius: 12px;
+        }
+
+        .unit-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .unit-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .radio-group {
+            display: grid;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .radio-option.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .radio-label {
+            flex: 1;
+        }
+
+        .radio-label strong {
+            display: block;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .radio-label small {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 32px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 32px;
+            padding: 24px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            border-radius: 16px;
+            border: 2px solid #667eea;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h3 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .calorie-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .calorie-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .calorie-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .calorie-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .calorie-value span {
+            font-size: 16px;
+            color: #999;
+            font-weight: 400;
+        }
+
+        .goal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .goal-badge.lose {
+            background: #fee;
+            color: #c33;
+        }
+
+        .goal-badge.gain {
+            background: #efe;
+            color: #3c3;
+        }
+
+        .goal-badge.maintain {
+            background: #eef;
+            color: #33c;
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Calorie Goal Calculator</h1>
+            <p>Discover your personalized daily calorie target</p>
+        </div>
+
+        <div class="content">
+            <div class="unit-toggle">
+                <button class="unit-btn active" id="metricBtn">Metric (kg, cm)</button>
+                <button class="unit-btn" id="imperialBtn">Imperial (lb, ft/in)</button>
+            </div>
+
+            <form class="form-grid" id="calorieForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="age">Age (years)</label>
+                        <input type="number" id="age" min="15" max="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" required>
+                            <option value="">Select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" id="metricInputs">
+                    <div class="form-group">
+                        <label for="weightKg">Weight (kg)</label>
+                        <input type="number" id="weightKg" step="0.1" min="30" max="300" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="heightCm">Height (cm)</label>
+                        <input type="number" id="heightCm" step="1" min="100" max="250" required>
+                    </div>
+                </div>
+
+                <div class="form-row" id="imperialInputs" style="display: none;">
+                    <div class="form-group">
+                        <label for="weightLb">Weight (lb)</label>
+                        <input type="number" id="weightLb" step="0.1" min="66" max="660">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Height</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <input type="number" id="heightFt" placeholder="Feet" min="3" max="8">
+                            <input type="number" id="heightIn" placeholder="Inches" min="0" max="11">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Activity Level</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="activity" value="1.2" required>
+                            <div class="radio-label">
+                                <strong>Sedentary</strong>
+                                <small>Little to no exercise</small>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="activity" value="1.375">
+                            <div class="radio-label">
+                                <strong>Lightly Active</strong>
+                                <small>Exercise 1-3 days/week</small>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="activity" value="1.55">
+                            <div class="radio-label">
+                                <strong>Moderately Active</strong>
+                                <small>Exercise 3-5 days/week</small>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="activity" value="1.725">
+                            <div class="radio-label">
+                                <strong>Very Active</strong>
+                                <small>Exercise 6-7 days/week</small>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="activity" value="1.9">
+                            <div class="radio-label">
+                                <strong>Extremely Active</strong>
+                                <small>Physical job & daily exercise</small>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Weight Goal</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="goal" value="lose" required>
+                            <div class="radio-label">
+                                <strong>Lose Weight</strong>
+                                <small>500 cal deficit (lose ~0.5 kg/week)</small>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="goal" value="maintain">
+                            <div class="radio-label">
+                                <strong>Maintain Weight</strong>
+                                <small>Stay at current weight</small>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="goal" value="gain">
+                            <div class="radio-label">
+                                <strong>Gain Weight</strong>
+                                <small>500 cal surplus (gain ~0.5 kg/week)</small>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="calculate-btn">Calculate My Calories</button>
+            </form>
+
+            <div class="results" id="results">
+                <h3>Your Personalized Calorie Goals</h3>
+                <div class="calorie-card">
+                    <div class="calorie-label">Maintenance Calories</div>
+                    <div class="calorie-value" id="maintenanceCalories">0 <span>cal/day</span></div>
+                </div>
+                <div class="calorie-card">
+                    <div class="calorie-label">Your Goal <span id="goalBadge"></span></div>
+                    <div class="calorie-value" id="goalCalories">0 <span>cal/day</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const metricBtn = document.getElementById('metricBtn');
+        const imperialBtn = document.getElementById('imperialBtn');
+        const metricInputs = document.getElementById('metricInputs');
+        const imperialInputs = document.getElementById('imperialInputs');
+        const form = document.getElementById('calorieForm');
+        const results = document.getElementById('results');
+        
+        let isMetric = true;
+
+        // Unit toggle
+        metricBtn.addEventListener('click', () => {
+            isMetric = true;
+            metricBtn.classList.add('active');
+            imperialBtn.classList.remove('active');
+            metricInputs.style.display = 'grid';
+            imperialInputs.style.display = 'none';
+            
+            // Set required attributes
+            document.getElementById('weightKg').required = true;
+            document.getElementById('heightCm').required = true;
+            document.getElementById('weightLb').required = false;
+            document.getElementById('heightFt').required = false;
+            document.getElementById('heightIn').required = false;
+        });
+
+        imperialBtn.addEventListener('click', () => {
+            isMetric = false;
+            imperialBtn.classList.add('active');
+            metricBtn.classList.remove('active');
+            imperialInputs.style.display = 'grid';
+            metricInputs.style.display = 'none';
+            
+            // Set required attributes
+            document.getElementById('weightKg').required = false;
+            document.getElementById('heightCm').required = false;
+            document.getElementById('weightLb').required = true;
+            document.getElementById('heightFt').required = true;
+            document.getElementById('heightIn').required = true;
+        });
+
+        // Radio button visual feedback
+        document.querySelectorAll('.radio-option').forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            
+            option.addEventListener('click', () => {
+                // Remove selected class from all options in the same group
+                const groupName = radio.getAttribute('name');
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                    r.closest('.radio-option').classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                option.classList.add('selected');
+            });
+        });
+
+        // Form submission
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Get values
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            const activityLevel = parseFloat(document.querySelector('input[name="activity"]:checked').value);
+            const goal = document.querySelector('input[name="goal"]:checked').value;
+            
+            let weightKg, heightCm;
+            
+            if (isMetric) {
+                weightKg = parseFloat(document.getElementById('weightKg').value);
+                heightCm = parseFloat(document.getElementById('heightCm').value);
+            } else {
+                const weightLb = parseFloat(document.getElementById('weightLb').value);
+                const heightFt = parseInt(document.getElementById('heightFt').value);
+                const heightIn = parseInt(document.getElementById('heightIn').value);
+                
+                // Convert to metric
+                weightKg = weightLb * 0.453592;
+                heightCm = (heightFt * 12 + heightIn) * 2.54;
+            }
+            
+            // Calculate BMR using Mifflin-St Jeor Equation
+            let bmr;
+            if (gender === 'male') {
+                bmr = 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
+            } else {
+                bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
+            }
+            
+            // Calculate maintenance calories (TDEE)
+            const maintenanceCalories = Math.round(bmr * activityLevel);
+            
+            // Calculate goal calories
+            let goalCalories;
+            let goalText;
+            let badgeClass;
+            
+            switch(goal) {
+                case 'lose':
+                    goalCalories = maintenanceCalories - 500;
+                    goalText = 'Weight Loss';
+                    badgeClass = 'lose';
+                    break;
+                case 'gain':
+                    goalCalories = maintenanceCalories + 500;
+                    goalText = 'Weight Gain';
+                    badgeClass = 'gain';
+                    break;
+                case 'maintain':
+                default:
+                    goalCalories = maintenanceCalories;
+                    goalText = 'Maintain Weight';
+                    badgeClass = 'maintain';
+                    break;
+            }
+            
+            // Display results
+            document.getElementById('maintenanceCalories').innerHTML = `${maintenanceCalories.toLocaleString()} <span>cal/day</span>`;
+            document.getElementById('goalCalories').innerHTML = `${goalCalories.toLocaleString()} <span>cal/day</span>`;
+            document.getElementById('goalBadge').innerHTML = `<span class="goal-badge ${badgeClass}">${goalText}</span>`;
+            
+            results.classList.add('show');
+            
+            // Smooth scroll to results
+            setTimeout(() => {
+                results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
